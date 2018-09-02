@@ -2,7 +2,8 @@ import threading
 import socket
 from .response import Response
 from .request import Request
-from .request_executor import RequestExecutor, VHostNotFoundError
+from .executors import RequestExecutor
+from .executors.base import VHostNotFoundError, InternalServerError
 
 MSGLEN = 80
 
@@ -22,11 +23,12 @@ class SocketThread(threading.Thread):
 
         try:
             response = Response(status=200, content=self.get_content(request))
-        except FileNotFoundError:
-            response = Response(status=404, content='file not found on server')
-        except VHostNotFoundError:
-            response = Response(status=404, content='vhost not found')
-
+        except FileNotFoundError as e:
+            response = Response(status=404, content=e)
+        except VHostNotFoundError as e:
+            response = Response(status=404, content=e)
+        except InternalServerError as e:
+            response = Response(status=500, content=e)
         self.clientsocket.send(response.response)
         self.clientsocket.close()
 
@@ -38,19 +40,27 @@ class SocketThread(threading.Thread):
 
 class ServerThread(threading.Thread):
     port = None
-    sock = None
+    serversocket = None
+    running = True
 
     def __init__(self, port):
         super(ServerThread, self).__init__()
         self.port = port
 
-        serversocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        serversocket.bind((socket.gethostname(), self.port))
-        serversocket.listen(2)
-        self.sock = serversocket
+        self.serversocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.serversocket.bind((socket.gethostname(), self.port))
+        self.serversocket.listen(2)
+
 
     def run(self):
-        while True:
-            print("*" * 100)
-            (clientsocket, address) = self.sock.accept()
-            SocketThread(clientsocket)
+        try:
+            while self.running:
+                print("*" * 100)
+                (clientsocket, address) = self.serversocket.accept()
+                SocketThread(clientsocket)
+        except ConnectionAbortedError:
+            pass
+
+    def terminate(self):
+        self.serversocket.close()
+        self.running = False
