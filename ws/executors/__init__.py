@@ -21,9 +21,9 @@ class RequestExecutor(object):
 
     def execute(self):
         vhosts = self.load_vhosts()
-        if self.request.host in vhosts:
+        if self.request.host.lower() in vhosts:
             executor = None
-            vhost = vhosts[self.request.host]
+            vhost = vhosts[self.request.host.lower()]
 
             if 'wsgi_path' in vhost:
                 wsgi_executable = vhost['wsgi_path'].split('/')[-1].split(".")[1]

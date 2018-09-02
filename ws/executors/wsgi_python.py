@@ -1,7 +1,7 @@
 import os
 import importlib.util
 
-from .base import BaseRequestExecutor
+from .base import BaseRequestExecutor, InternalServerError
 
 
 class WsgiPythonRequestExecutor(BaseRequestExecutor):
@@ -15,5 +15,6 @@ class WsgiPythonRequestExecutor(BaseRequestExecutor):
 
         except FileNotFoundError as e:
             raise InternalServerError(e)
+
         except Exception as e:
             raise InternalServerError(e)
