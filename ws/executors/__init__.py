@@ -4,7 +4,7 @@ import os
 from .static import StaticRequestExecutor
 from .wsgi_python import WsgiPythonRequestExecutor
 from .wsgi_php import WsgiPhpRequestExecutor
-
+from ..access import Access, AccessDeniedError
 
 class RequestExecutor(object):
     request = None
@@ -20,10 +20,15 @@ class RequestExecutor(object):
 
 
     def execute(self):
+
         vhosts = self.load_vhosts()
         if self.request.host.lower() in vhosts:
             executor = None
             vhost = vhosts[self.request.host.lower()]
+            
+            access = Access(vhost, self.request)
+            if not access.access():
+                raise AccessDeniedError()
 
             if 'wsgi_path' in vhost:
                 wsgi_executable = vhost['wsgi_path'].split('/')[-1].split(".")[1]

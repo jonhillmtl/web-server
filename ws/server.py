@@ -5,7 +5,7 @@ from .request import Request
 from .executors import RequestExecutor
 from .executors.base import VHostNotFoundError, InternalServerError
 import mimetypes
-
+from .access import Access, AccessDeniedError
 
 class SocketThread(threading.Thread):
     clientsocket = None
@@ -18,23 +18,26 @@ class SocketThread(threading.Thread):
 
     def run(self):
         # TODO JHILL: what if the header is longer than that? or is this too long?
-        headers = self.clientsocket.recv(4096).decode()
-        request = Request(headers)
+        request_text = self.clientsocket.recv(4096).decode()
+        request = Request(request_text)
+        request.headers['CLIENT_IP'] = self.clientsocket.getsockname()[0]
         print(request)
 
         try:
             response = Response(
-            status=200,
-            content=self.get_content(request),
-            content_type=mimetypes.guess_type(request.path)
-        )
+                status=200,
+                content=self.get_content(request),
+                content_type=mimetypes.guess_type(request.path)
+            )
         except FileNotFoundError as e:
-            response = Response(status=404, content=e)
+            response = Response(status=404, content=str(e), content_type='')
         except VHostNotFoundError as e:
-            response = Response(status=404, content=e)
+            response = Response(status=404, content=str(e), content_type='')
         except InternalServerError as e:
-            response = Response(status=500, content=e)
-        
+            response = Response(status=500, content=str(e), content_type='')
+        except AccessDeniedError as e:
+            response = Response(status=401, content=str(e), content_type='')
+
         self.clientsocket.send(response.response)
         self.clientsocket.close()
 
@@ -51,12 +54,16 @@ class ServerThread(threading.Thread):
 
     def __init__(self, port):
         super(ServerThread, self).__init__()
-        self.port = port
+        self.port = 8500
 
-        self.serversocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.serversocket.bind((socket.gethostname(), self.port))
-        self.serversocket.listen(2)
-
+        while True:
+            try:
+                self.serversocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                self.serversocket.bind((socket.gethostname(), self.port))
+                self.serversocket.listen(2)
+                break
+            except OSError:
+                self.port = self.port + 1
 
     def run(self):
         try:
@@ -66,6 +73,7 @@ class ServerThread(threading.Thread):
                 SocketThread(clientsocket)
         except ConnectionAbortedError:
             pass
+
 
     def terminate(self):
         self.serversocket.close()

@@ -13,7 +13,7 @@ class Response(object):
         return len(self.content)
 
     def __str__(self):
-        print(type(self.content))
+        # TODO JHILL: mime types, pngs aren't transferring
         return """HTTP/1.1 {} Server
 Content-Length: {}
 Content-Type: {}

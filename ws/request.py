@@ -43,7 +43,6 @@ class Request(object):
 
 
     def parse_headers(self):
-        print(self.headers_raw)
         lines = self.headers_raw.split('\n\n\n')[0].split('\n')
         self.method, self.path, self.http_version = lines[0].split(' ')
 
