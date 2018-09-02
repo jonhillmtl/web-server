@@ -4,8 +4,8 @@ from .response import Response
 from .request import Request
 from .executors import RequestExecutor
 from .executors.base import VHostNotFoundError, InternalServerError
+import mimetypes
 
-MSGLEN = 80
 
 class SocketThread(threading.Thread):
     clientsocket = None
@@ -17,18 +17,24 @@ class SocketThread(threading.Thread):
 
 
     def run(self):
+        # TODO JHILL: what if the header is longer than that? or is this too long?
         headers = self.clientsocket.recv(4096).decode()
         request = Request(headers)
         print(request)
 
         try:
-            response = Response(status=200, content=self.get_content(request))
+            response = Response(
+            status=200,
+            content=self.get_content(request),
+            content_type=mimetypes.guess_type(request.path)
+        )
         except FileNotFoundError as e:
             response = Response(status=404, content=e)
         except VHostNotFoundError as e:
             response = Response(status=404, content=e)
         except InternalServerError as e:
             response = Response(status=500, content=e)
+        
         self.clientsocket.send(response.response)
         self.clientsocket.close()
 

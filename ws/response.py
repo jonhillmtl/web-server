@@ -1,14 +1,31 @@
 class Response(object):
     status = None
     content = None
+    content_type =  None
 
-    def __init__(self, status, content):
+    def __init__(self, status, content, content_type):
         self.status = status
         self.content = content
+        self.content_type = content_type
 
+    @property
+    def content_length(self):
+        return len(self.content)
 
     def __str__(self):
-        return "HTTP/1.1 {} Server\n\n{}".format(self.status, self.content)
+        print(type(self.content))
+        return """HTTP/1.1 {} Server
+Content-Length: {}
+Content-Type: {}
+
+
+{}
+        """.format(
+            self.status,
+            self.content_length,
+            self.content_type,
+            self.content
+        )
 
     @property
     def response(self):

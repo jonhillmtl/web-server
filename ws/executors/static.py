@@ -10,9 +10,13 @@ class StaticRequestExecutor(BaseRequestExecutor):
 
         if os.path.isdir(filename):
             filename = os.path.join(filename, 'index.html')
-
         try:
-            with open(filename) as f:
-                return f.read()
+            # TODO JHILL: try this some other way?
+            if '.png' in filename:
+                with open(filename, "rb") as f:
+                    return f.read()
+            else:
+                with open(filename) as f:
+                    return f.read()
         except FileNotFoundError as e:
             raise e
