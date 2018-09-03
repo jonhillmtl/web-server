@@ -13,6 +13,7 @@ class RequestExecutor(object):
     request = None
     vhosts_path = None
 
+
     def __init__(self, request, vhosts_path):
         self.request = request
         self.vhosts_path = vhosts_path
@@ -28,6 +29,7 @@ class RequestExecutor(object):
 
         # TODO JHILL: is this the best place to be checking access?
         # this is the only time we know the vhost...
+        # seems okat to me
         access = Access(vhost, self.request)
         if not access.access():
             raise AccessDeniedError()
@@ -44,4 +46,5 @@ class RequestExecutor(object):
         else:
             executor = StaticRequestExecutor(vhost, self.request)
 
+        # TODO JHILL: don't do this if the executor is null
         return executor.serve()

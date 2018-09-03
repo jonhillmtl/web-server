@@ -60,6 +60,8 @@ class SocketThread(threading.Thread):
 
 class ServerThread(threading.Thread):
     port = None
+    
+    # TODO JHILL: will need another socket for secure
     serversocket = None
     running = True
     host = None
