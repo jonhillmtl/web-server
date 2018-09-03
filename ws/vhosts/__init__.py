@@ -3,12 +3,14 @@ import json
 
 
 class VHostConfigurationNotFoundError(Exception):
+    """ the vhosts configuration file can't be found at all """
     vhosts_path = None
     def __init__(self, vhosts_path):
         self.vhosts_path = vhosts_path
 
 
 class VHostNotFoundError(Exception):
+    """ raised if the host can't be found in the specified file """
     host = None
     vhosts_path = None
 
@@ -18,6 +20,7 @@ class VHostNotFoundError(Exception):
 
 
 class VHostConfigurationError(Exception):
+    """ raised if the host can be found in the specified file, but is then misconfigured """
     host = None
     vhosts_path = None
     reason = None
@@ -72,11 +75,21 @@ class VHost(object):
     def html_root(self):
         if self.data is None:
             return None
-        return self.data.get('html_root', None)
+
+        html_root = self.data.get('html_root', None)
+
+        if html_root is None:
+            return None
+        else:
+            if os.path.isabs(html_root):
+                return html_root
+            else:
+                return os.path.normpath(os.path.join(os.path.dirname(self.vhosts_path), html_root))
 
 
     @property
     def wsgi_path(self):
+        # TODO JHILL: support relative paths here! it'll be super important!
         if self.data is None:
             return None
         return self.data.get('wsgi_path', None)
