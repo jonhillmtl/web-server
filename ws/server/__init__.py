@@ -70,12 +70,15 @@ class ServerThread(threading.Thread):
                 self.serversocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 self.serversocket.bind((socket.gethostname(), self.port))
                 self.serversocket.listen(2)
-                
+
                 self.host = socket.gethostname()
                 break
             except OSError:
+                self.serversocket = None
                 self.port = self.port + 1
 
+
+        # TODO JHILL: maybe we didn't get a socket, raise an error!
 
         print("connected on port: {}".format(self.port))
         print("connected on host: {}".format(self.host))

@@ -1,9 +1,11 @@
-from nose.tools import *
-import unittest
-import os
-
-from ..vhosts import VHost, VHostConfigurationNotFoundError, VHostConfigurationError
 from ..utils.test import get_fixture_folder
+from ..vhosts import VHost, VHostConfigurationNotFoundError, VHostConfigurationError
+
+from nose.tools import *
+
+import os
+import unittest
+
 
 class VHostsTestCase(unittest.TestCase):
 
