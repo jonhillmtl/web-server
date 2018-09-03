@@ -1,11 +1,14 @@
-import threading
-import socket
-from .response import Response
-from .request import Request
-from .executors import RequestExecutor
-from .executors.base import VHostNotFoundError, InternalServerError
 import mimetypes
-from .access import Access, AccessDeniedError
+import socket
+import threading
+
+
+from ..access import Access, AccessDeniedError
+from ..executors import RequestExecutor
+from ..executors.base import VHostNotFoundError, InternalServerError
+from ..http.request import Request
+from ..http.response import Response
+
 
 class SocketThread(threading.Thread):
     clientsocket = None
@@ -54,7 +57,7 @@ class ServerThread(threading.Thread):
 
     def __init__(self, port):
         super(ServerThread, self).__init__()
-        self.port = 8500
+        self.port = port
 
         while True:
             try:
@@ -65,11 +68,16 @@ class ServerThread(threading.Thread):
             except OSError:
                 self.port = self.port + 1
 
+        print("connected on port: {}".format(self.port))
+        print("connected on host: {}".format(socket.gethostname()))
+
+
     def run(self):
         try:
             while self.running:
                 print("*" * 100)
                 (clientsocket, address) = self.serversocket.accept()
+                print(clientsocket)
                 SocketThread(clientsocket)
         except ConnectionAbortedError:
             pass

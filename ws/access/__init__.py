@@ -28,19 +28,23 @@ class Access(object):
                 self.access_data = json.loads(f.read())
 
 
-    def access(self):
-        print(self.request.headers['CLIENT_IP'])
-        
-        allow_ips = []
+    def get_allowed_ips(self):
+        allowed_ips = []
         for ad in self.access_data:
+            # TODO JHILL: match path
             if ad['action'] == 'allow' and ad['mode'] == 'from_ip':
-                allow_ips.append(ad['ip'])
+                allowed_ips.append(ad['ip'])
+        return allowed_ips
 
+
+    def access(self):
+        """
         if len(allow_ips) > 0:
             if 'CLIENT_IP' not in self.request.headers:
                 return False
 
             if not self.request.headers['CLIENT_IP'] in allow_ips:
                 return False
+        """
 
         return True
