@@ -22,10 +22,10 @@ class VHostConfigurationError(Exception):
     vhosts_path = None
     reason = None
 
-    def __init__(self, vhosts_path, host, reason):
+    def __init__(self, vhosts_path, host, error):
         self.host = host
         self.vhosts_path = vhosts_path
-        self.reason = reason
+        self.reason = error
 
 
 class VHost(object):
@@ -53,13 +53,19 @@ class VHost(object):
             else:
                 self.data = data[self.host]
 
-        if self.validate is False:
-            raise VHostConfigurationError(self.vhosts, self.host)
+        valid, error = self.validate()
+        if valid is False:
+            raise VHostConfigurationError(self.vhosts_path, self.host, error)
 
 
-    @property
     def validate(self):
-        return True
+        if self.data is not None:
+            if 'html_root' in self.data and 'wsgi_path' in self.data:
+                return False, 'html_root and wsgi_path are both present'
+        else:
+            return False
+
+        return True, ""
 
 
     @property

@@ -1,0 +1,6 @@
+{
+    "jons-mbp.fritz.box" : {
+        "html_root": "~/ws/var/sites/fritz/html/",
+        "wsgi_path": "~/ws/var/sites/fritz/wsgi.py"
+    }
+}

@@ -29,3 +29,13 @@ class VHostsTestCase(unittest.TestCase):
 
         with self.assertRaises(VHostConfigurationError) as context:
             vhost = VHost(vhosts_path, '')
+
+
+    def test_html_wsgi_both_present(self):
+        ff = get_fixture_folder()
+        vhosts_path = os.path.join(ff, 'vhosts', 'html_wsgi_both_present', 'vhosts.json')
+
+        with self.assertRaises(VHostConfigurationError) as context:
+            vhost = VHost(vhosts_path, 'jons-mbp.fritz.box')
+            
+        
