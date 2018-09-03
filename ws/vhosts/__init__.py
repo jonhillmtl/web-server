@@ -2,26 +2,65 @@ import os
 import json
 
 
+class VHostConfigurationNotFoundError(Exception):
+    vhosts_path = None
+    def __init__(self, vhosts_path):
+        self.vhosts_path = vhosts_path
+
+
 class VHostNotFoundError(Exception):
-    vhost = None
-    def __init__(self, vhost):
-        self.vhost = vhost
+    host = None
+    vhosts_path = None
+
+    def __init__(self, vhosts_path, host):
+        self.host = host
+        self.vhosts_path = vhosts_path
+
+
+class VHostConfigurationError(Exception):
+    host = None
+    vhosts_path = None
+    reason = None
+
+    def __init__(self, vhosts_path, host, reason):
+        self.host = host
+        self.vhosts_path = vhosts_path
+        self.reason = reason
 
 
 class VHost(object):
     host = None
     data = None
+    vhosts_path = None
+
 
     def __init__(self, vhosts_path, host):
         self.host = host
+        self.vhosts_path = os.path.expanduser(vhosts_path)
 
-        # TODO JHILL: load the vhosts file
-        self.data = json.loads(open(os.path.expanduser(vhosts_path)).read())[self.host]
+        if not os.path.exists(vhosts_path):
+            raise VHostConfigurationNotFoundError(vhosts_path)
+        else:
+            try:
+                data = json.loads(open(self.vhosts_path).read())
+            except json.decoder.JSONDecodeError as e:
+                raise VHostConfigurationError(self.vhosts_path, self.host, str(e))
+
+            # TODO JHILL: lowercase all the host keys
+
+            if self.host not in data:
+                raise VHostNotFoundError(self.vhosts_path, self.host)
+            else:
+                self.data = data[self.host]
+
+        if self.validate is False:
+            raise VHostConfigurationError(self.vhosts, self.host)
+
 
     @property
-    def exists(self):
-        # TODO JHILL
+    def validate(self):
         return True
+
 
     @property
     def html_root(self):
@@ -35,6 +74,7 @@ class VHost(object):
         if self.exists:
             return self.data['wsgi_path']
         return None
+
 
     @property
     def is_wsgi(self):

@@ -20,7 +20,8 @@ class RequestExecutor(object):
 
     def execute(self):
         vhost = VHost(self.vhosts_path, self.request.host)
-        if vhost.exists is False:
+        # TODO JHILL: throw different errors here...
+        if vhost.validate is False:
             raise VHostNotFoundError()
 
         executor = None
