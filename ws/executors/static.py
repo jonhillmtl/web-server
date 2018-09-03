@@ -4,7 +4,7 @@ from .base import BaseRequestExecutor
 
 class StaticRequestExecutor(BaseRequestExecutor):
     def serve(self):
-        html_root = os.path.expanduser(self.vhost['html_root'])
+        html_root = os.path.expanduser(self.vhost.html_root)
         request_path = self.request.path[1:] if self.request.path[0] == '/' else self.request.path
         filename = os.path.join(html_root, request_path)
 

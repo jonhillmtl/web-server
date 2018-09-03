@@ -10,14 +10,14 @@ class Access(object):
     vhost = None
     request = None
     access_data = None
-    
+
     def __init__(self, vhost, request):
         self.vhost = vhost
         self.request = request
 
         # TODO JHILL: figure out how to do individual files
 
-        html_root = os.path.expanduser(self.vhost['html_root'])
+        html_root = os.path.expanduser(self.vhost.html_root)
         request_path = self.request.path[1:] if self.request.path[0] == '/' else self.request.path
         access_path = os.path.join(html_root, request_path, 'access.json')
 

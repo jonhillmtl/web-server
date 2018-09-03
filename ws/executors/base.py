@@ -1,7 +1,3 @@
-class VHostNotFoundError(Exception):
-    vhost = None
-    def __init__(self, vhost):
-        self.vhost = vhost
 
 
 class InternalServerError(Exception):

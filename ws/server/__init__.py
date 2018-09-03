@@ -5,16 +5,19 @@ import threading
 
 from ..access import Access, AccessDeniedError
 from ..executors import RequestExecutor
-from ..executors.base import VHostNotFoundError, InternalServerError
+from ..executors.base import InternalServerError
+from ..vhosts import VHostNotFoundError
 from ..http.request import Request
 from ..http.response import Response
 
 
 class SocketThread(threading.Thread):
     clientsocket = None
+    vhosts_path = None
 
-    def __init__(self, clientsocket):
+    def __init__(self, clientsocket, vhosts_path):
         super(SocketThread, self).__init__()
+        self.vhosts_path = vhosts_path
         self.clientsocket = clientsocket
         self.start()
 
@@ -46,7 +49,7 @@ class SocketThread(threading.Thread):
 
 
     def get_content(self, request):
-        request_executor = RequestExecutor(request)
+        request_executor = RequestExecutor(request, self.vhosts_path)
         return request_executor.execute()
 
 
@@ -55,10 +58,12 @@ class ServerThread(threading.Thread):
     serversocket = None
     running = True
     host = None
+    vhosts_path = None
 
-    def __init__(self, port):
+    def __init__(self, port, vhosts_path):
         super(ServerThread, self).__init__()
         self.port = port
+        self.vhosts_path = vhosts_path
 
         while True:
             try:
@@ -81,7 +86,7 @@ class ServerThread(threading.Thread):
             while self.running:
                 print("*" * 100)
                 (clientsocket, address) = self.serversocket.accept()
-                SocketThread(clientsocket)
+                SocketThread(clientsocket, self.vhosts_path)
         except ConnectionAbortedError:
             pass
 
