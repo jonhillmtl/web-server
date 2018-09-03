@@ -15,16 +15,24 @@ class SocketThread(threading.Thread):
     clientsocket = None
     vhosts_path = None
 
+
     def __init__(self, clientsocket, vhosts_path):
         super(SocketThread, self).__init__()
         self.vhosts_path = vhosts_path
         self.clientsocket = clientsocket
-        self.start()
 
 
     def run(self):
         # TODO JHILL: what if the header is longer than that? or is this too long?
         request_text = self.clientsocket.recv(4096).decode()
+
+        self.process_request(request_text)
+
+        self.clientsocket.send(response.response)
+        self.clientsocket.close()
+
+
+    def process_request(self, request_text):
         request = Request(request_text)
         request.headers['CLIENT_IP'] = self.clientsocket.getsockname()[0]
         print(request)
@@ -43,9 +51,6 @@ class SocketThread(threading.Thread):
             response = Response(status=500, content=str(e), content_type='')
         except AccessDeniedError as e:
             response = Response(status=401, content=str(e), content_type='')
-
-        self.clientsocket.send(response.response)
-        self.clientsocket.close()
 
 
     def get_content(self, request):
@@ -89,7 +94,8 @@ class ServerThread(threading.Thread):
             while self.running:
                 print("*" * 100)
                 (clientsocket, address) = self.serversocket.accept()
-                SocketThread(clientsocket, self.vhosts_path)
+                st = SocketThread(clientsocket, self.vhosts_path)
+                st.start()
         except ConnectionAbortedError:
             pass
 

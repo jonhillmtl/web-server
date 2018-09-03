@@ -3,7 +3,7 @@ import unittest
 import os
 import socket
 
-from . import ServerThread
+from . import ServerThread, SocketThread
 from ..utils.test import get_fixture_folder
 
 class ServerTestCase(unittest.TestCase):
@@ -33,3 +33,13 @@ class ServerTestCase(unittest.TestCase):
 
         for s in sockets:
             s.close()
+
+
+class SocketTestCase(unittest.TestCase):
+
+    def test_basic(self):
+        ff = get_fixture_folder()
+        vhosts_path = os.path.join(ff, 'vhosts', 'basic', 'vhosts.json')
+        socket_thread = SocketThread(None, vhosts_path)
+
+        # TODO JHILL: actually start processing requests here, load them from fixture
