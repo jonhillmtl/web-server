@@ -38,7 +38,7 @@ class VHost(object):
         self.host = host
         self.vhosts_path = os.path.expanduser(vhosts_path)
 
-        if not os.path.exists(vhosts_path):
+        if not os.path.exists(self.vhosts_path):
             raise VHostConfigurationNotFoundError(vhosts_path)
         else:
             try:
@@ -70,20 +70,19 @@ class VHost(object):
 
     @property
     def html_root(self):
-        if self.exists:
-            return self.data['html_root']
-        return None
+        if self.data is None:
+            return None
+        return self.data.get('html_root', None)
 
 
     @property
     def wsgi_path(self):
-        if self.exists:
-            return self.data['wsgi_path']
-        return None
+        if self.data is None:
+            return None
+        return self.data.get('wsgi_path', None)
 
 
     @property
     def is_wsgi(self):
-        if self.exists:
-            return 'wsgi_path' in self.data
-        return False
+        return 'wsgi_path' in self.data
+

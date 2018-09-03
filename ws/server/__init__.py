@@ -65,7 +65,7 @@ class ServerThread(threading.Thread):
         self.port = port
         self.vhosts_path = vhosts_path
 
-        while True:
+        while self.port < port + 10:
             try:
                 self.serversocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 self.serversocket.bind((socket.gethostname(), self.port))
