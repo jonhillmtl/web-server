@@ -7,10 +7,10 @@ class AccessDeniedError(Exception):
 
 
 class Access(object):
+    vhost = None
     request = None
     access_data = None
-    vhost = None
-
+    
     def __init__(self, vhost, request):
         self.vhost = vhost
         self.request = request

@@ -11,7 +11,10 @@ def main():
     try:
         server_thread = server.ServerThread(port=args.port)
         server_thread.start()
-        # subprocess.check_call(["open", "http://jons-mbp.fritz.box:{}/".format(server_thread.port)])
+        subprocess.check_call(["open", "http://{}:{}/".format(
+            server_thread.host,
+            server_thread.port)]
+        )
         server_thread.join()
     except KeyboardInterrupt as e:
         print("\nterminating as cleanly as possible")

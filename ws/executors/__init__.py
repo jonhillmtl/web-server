@@ -1,6 +1,7 @@
 import json
 import os
 
+from .base import WsgiExecutableNotImplementedError
 from .static import StaticRequestExecutor
 from .wsgi_python import WsgiPythonRequestExecutor
 from .wsgi_php import WsgiPhpRequestExecutor
@@ -24,8 +25,13 @@ class RequestExecutor(object):
         vhosts = self.load_vhosts()
         if self.request.host.lower() in vhosts:
             executor = None
-            vhost = vhosts[self.request.host.lower()]
             
+            # TODO JHILL: the hosts aren't necessarily in the vhosts in lower case,
+            # should we lowercase them here?
+            vhost = vhosts[self.request.host.lower()]
+
+            # TODO JHILL: is this the best place to be checking access?
+            # this is the only time we know the vhost...
             access = Access(vhost, self.request)
             if not access.access():
                 raise AccessDeniedError()
