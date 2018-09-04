@@ -6,7 +6,10 @@ class Request(object):
     headers_raw = None
 
     headers = None
+
+    # GET, POST, PUT, DELETE
     method = None
+
     path = None
     http_version = None
     query_params = None
@@ -43,20 +46,36 @@ class Request(object):
 
 
     def parse_headers(self):
+        # the content will be split from the header information by three newlines,
+        # the one at the end of the content and two for blank lines,
+        # so if we split it there we can separate them cleanly for parsing
         lines = self.headers_raw.split('\n\n\n')[0].split('\n')
+
         try:
             self.method, self.path, self.http_version = lines[0].split(' ')
         except ValueError:
             print(lines[0])
+            # TODO JHILL: probably bail here, the request is probably
+            # hopelessly malformed if that didn't work
 
+        # TODO JHILL: make sure that the method is acceptable, ie: in a list of
+        # methods that we can deal with
+
+        # skip throught the lines and break them apart on ': ' to get
+        # a dictionary of key value pairs
+        # start from the second line because the first was consumed above
         for line in lines[1:]:
             key = line.split(': ')[0]
+            
+            # these two show up for some reason
             if key != '\r' and key != '':
                 if len(line.split(': ')) == 2:
                     self.headers[key] = line.split(': ')[1][:-1]
                 else:
                     self.headers[key] = None
 
+
+        # parse out the query_params or content of the request
         if self.method.lower() == 'get':
             # TODO JHILL: just use someone else's function for this
             query_params = self.path.split('?')
