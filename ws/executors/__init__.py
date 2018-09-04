@@ -29,7 +29,7 @@ class RequestExecutor(object):
 
         # TODO JHILL: is this the best place to be checking access?
         # this is the only time we know the vhost...
-        # seems okat to me
+        # seems okay to me
         access = Access(vhost, self.request)
         if not access.access():
             raise AccessDeniedError()

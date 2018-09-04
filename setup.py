@@ -10,7 +10,8 @@ setup(name='ws',
     license='MIT',
 
     install_requires=[
-        'zmq'
+        'zmq',
+        'nose'
     ],
 
     entry_points={

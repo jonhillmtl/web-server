@@ -1,0 +1,9 @@
+{
+    "jons-mbp.fritz.box" : {
+        "html_root": "./a"
+    },
+
+    "jons-macbook-pro.local" : {
+        "html_root": "./a"
+    }
+}

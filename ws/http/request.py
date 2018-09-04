@@ -3,7 +3,7 @@ from urllib.parse import urlparse
 import urllib
 
 class Request(object):
-    headers_raw = None
+    request_raw = None
 
     headers = None
 
@@ -15,8 +15,8 @@ class Request(object):
     query_params = None
 
 
-    def __init__(self, headers_raw):
-        self.headers_raw = headers_raw
+    def __init__(self, request_raw):
+        self.request_raw = request_raw
         self.query_params = dict()
         self.headers = dict()
         self.parse_headers()
@@ -49,7 +49,7 @@ class Request(object):
         # the content will be split from the header information by three newlines,
         # the one at the end of the content and two for blank lines,
         # so if we split it there we can separate them cleanly for parsing
-        lines = self.headers_raw.split('\n\n\n')[0].split('\n')
+        lines = self.request_raw.split('\n\n\n')[0].split('\n')
 
         try:
             self.method, self.path, self.http_version = lines[0].split(' ')
@@ -66,7 +66,7 @@ class Request(object):
         # start from the second line because the first was consumed above
         for line in lines[1:]:
             key = line.split(': ')[0]
-            
+
             # these two show up for some reason
             if key != '\r' and key != '':
                 if len(line.split(': ')) == 2:
@@ -85,5 +85,5 @@ class Request(object):
                 self.query_params = urllib.parse.parse_qs(query_params[1])
         else:
             # TODO JHILL: check the content-type here.... just do JSON for now
-            json_string = self.headers_raw[-self.content_length:]
+            json_string = self.request_raw[-self.content_length:]
             self.query_params = json.loads(json_string)
