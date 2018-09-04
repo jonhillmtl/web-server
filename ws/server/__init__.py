@@ -1,7 +1,8 @@
 import mimetypes
 import socket
 import threading
-
+import ssl
+import os
 
 from ..access import Access, AccessDeniedError
 from ..executors import RequestExecutor
@@ -14,12 +15,13 @@ from ..http.response import Response
 class SocketThread(threading.Thread):
     clientsocket = None
     vhosts_path = None
+    secure = None
 
-
-    def __init__(self, clientsocket, vhosts_path):
+    def __init__(self, clientsocket, vhosts_path, secure):
         super(SocketThread, self).__init__()
         self.vhosts_path = vhosts_path
         self.clientsocket = clientsocket
+        self.secure = secure
 
 
     def run(self):
@@ -65,21 +67,39 @@ class ServerThread(threading.Thread):
     running = True
     host = None
     vhosts_path = None
+    secure = None
 
-    def __init__(self, port, vhosts_path):
+    def __init__(self, port, vhosts_path, secure):
         super(ServerThread, self).__init__()
         self.port = port
         self.vhosts_path = vhosts_path
+        self.secure = secure
 
         while self.port < port + 10:
             try:
-                self.serversocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                self.serversocket.bind((socket.gethostname(), self.port))
-                self.serversocket.listen(2)
+                if secure:
+                    context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+
+                    context.load_cert_chain(
+                        os.path.expanduser('~/ws/mycert.pem'),
+                        os.path.expanduser('~/ws/mycert.key'),
+                    )
+                    print(context)
+
+                    serversocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM, 0)
+                    serversocket.bind((socket.gethostname(), self.port))
+                    serversocket.listen(5)
+                    self.serversocket = context.wrap_socket(serversocket, server_side=True)
+                    print(self.serversocket)
+                else:
+                    self.serversocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                    self.serversocket.bind((socket.gethostname(), self.port))
+                    self.serversocket.listen(5)
 
                 self.host = socket.gethostname()
                 break
-            except OSError:
+            except OSError as e:
+                print(e)
                 self.serversocket = None
                 self.port = self.port + 1
 
@@ -91,11 +111,15 @@ class ServerThread(threading.Thread):
 
 
     def run(self):
+        if self.serversocket is None:
+            print("exiting")
+            return
+
         try:
             while self.running:
                 print("*" * 100)
                 (clientsocket, address) = self.serversocket.accept()
-                st = SocketThread(clientsocket, self.vhosts_path)
+                st = SocketThread(clientsocket, self.vhosts_path, self.secure)
                 st.start()
         except ConnectionAbortedError:
             pass
