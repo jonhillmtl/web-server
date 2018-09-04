@@ -12,7 +12,7 @@ class ServerTestCase(unittest.TestCase):
         ff = get_fixture_folder()
         vhosts_path = os.path.join(ff, 'vhosts', 'basic', 'vhosts.json')
 
-        st = ServerThread(8045, vhosts_path)
+        st = ServerThread(8045, vhosts_path, False)
         self.assertNotEqual(st.serversocket, None)
         st.serversocket.close()
 
@@ -28,7 +28,7 @@ class ServerTestCase(unittest.TestCase):
             serversocket.bind((socket.gethostname(), i))
             sockets.append(serversocket)
 
-        st = ServerThread(9000, vhosts_path)
+        st = ServerThread(9000, vhosts_path, False)
         self.assertEqual(st.serversocket, None)
 
         for s in sockets:
@@ -40,6 +40,6 @@ class SocketTestCase(unittest.TestCase):
     def test_basic(self):
         ff = get_fixture_folder()
         vhosts_path = os.path.join(ff, 'vhosts', 'basic', 'vhosts.json')
-        socket_thread = SocketThread(None, vhosts_path)
+        socket_thread = SocketThread(None, vhosts_path, False)
 
         # TODO JHILL: actually start processing requests here, load them from fixture

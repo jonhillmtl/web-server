@@ -84,13 +84,11 @@ class ServerThread(threading.Thread):
                         os.path.expanduser('~/ws/mycert.pem'),
                         os.path.expanduser('~/ws/mycert.key'),
                     )
-                    print(context)
 
                     serversocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM, 0)
                     serversocket.bind((socket.gethostname(), self.port))
                     serversocket.listen(5)
                     self.serversocket = context.wrap_socket(serversocket, server_side=True)
-                    print(self.serversocket)
                 else:
                     self.serversocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                     self.serversocket.bind((socket.gethostname(), self.port))
@@ -99,7 +97,6 @@ class ServerThread(threading.Thread):
                 self.host = socket.gethostname()
                 break
             except OSError as e:
-                print(e)
                 self.serversocket = None
                 self.port = self.port + 1
 
@@ -112,7 +109,7 @@ class ServerThread(threading.Thread):
 
     def run(self):
         if self.serversocket is None:
-            print("exiting")
+            print("exiting because we have no serversocket")
             return
 
         try:

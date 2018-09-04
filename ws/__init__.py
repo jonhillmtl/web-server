@@ -9,6 +9,7 @@ argparser.add_argument('--https_port', type=int, default=8065, required=False)
 argparser.add_argument('--vhosts_path', type=str, default='~/ws/vhosts.json')
 args = argparser.parse_args()
 
+
 def main():
     try:
         http_thread = server.ServerThread(port=args.http_port, vhosts_path=args.vhosts_path, secure=False)
