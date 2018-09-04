@@ -32,8 +32,15 @@ class VHostConfigurationError(Exception):
 
 
 class VHost(object):
+    """ represents a virtual host: ie: a hostname mapped to an html_root or wsgi_path """
+
+    # the hostname
     host = None
+
+    # the data associated with that hostname: ie the html_root or wsgi_path, as JSON
     data = None
+
+    # the path to the vhost configuration file, a JSON file
     vhosts_path = None
 
 

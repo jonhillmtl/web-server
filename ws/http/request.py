@@ -4,7 +4,7 @@ import urllib
 
 class Request(object):
     headers_raw = None
-    
+
     headers = None
     method = None
     path = None
