@@ -1,0 +1,8 @@
+[
+    {
+        "action" : "invalid",
+        "path": "/",
+        "mode" : "from_ip",
+        "ip" : "192.168.178.41"
+    }
+]
