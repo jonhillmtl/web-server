@@ -26,7 +26,7 @@ class SocketThread(threading.Thread):
         # TODO JHILL: what if the header is longer than that? or is this too long?
         request_text = self.clientsocket.recv(4096).decode()
 
-        self.process_request(request_text)
+        response = self.process_request(request_text)
 
         self.clientsocket.send(response.response)
         self.clientsocket.close()
@@ -52,6 +52,7 @@ class SocketThread(threading.Thread):
         except AccessDeniedError as e:
             response = Response(status=401, content=str(e), content_type='')
 
+        return response
 
     def get_content(self, request):
         request_executor = RequestExecutor(request, self.vhosts_path)
@@ -60,8 +61,6 @@ class SocketThread(threading.Thread):
 
 class ServerThread(threading.Thread):
     port = None
-    
-    # TODO JHILL: will need another socket for secure
     serversocket = None
     running = True
     host = None
